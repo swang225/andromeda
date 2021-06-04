@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from andromeda.finance.analytics.portfolio import roll
+from andromeda.finance.analytics.portfolio import roll, equal_weight
 
 
 def daily_returns(prices):
@@ -94,9 +94,22 @@ def calc_returns(factor_strategy, returns, trade_cost=None):
     return cum_returns, daily_returns
 
 
-def performance_data(factor, returns, roll=None, title=None, leverage=1, groups=None, trade_cost=None, neutral=False):
-    strat, gweights = factor_strategy(factor, roll, leverage, groups=groups, neutral=neutral)
-    ret, daily_ret = calc_returns(strat, returns, trade_cost=trade_cost)
+def performance_data(factor,
+                     returns,
+                     roll=None,
+                     title=None,
+                     leverage=1,
+                     groups=None,
+                     trade_cost=None,
+                     neutral=False):
+    strat, gweights = factor_strategy(factor,
+                                      roll,
+                                      leverage,
+                                      groups=groups,
+                                      neutral=neutral)
+    ret, daily_ret = calc_returns(strat,
+                                  returns,
+                                  trade_cost=trade_cost)
 
     if title is None:
         title = f'roll-{roll}'
@@ -107,30 +120,53 @@ def performance_data(factor, returns, roll=None, title=None, leverage=1, groups=
     return ret, daily_ret, gweights
 
 
-def performance_data_list(factor, returns, rolls=[], groups=None, trade_cost=None, neutral=False):
+def performance_data_list(factor,
+                          returns,
+                          rolls=[],
+                          groups=None,
+                          trade_cost=None,
+                          neutral=False):
     rets = []
     drets = []
     gwgts = {}
 
-    ret, dret, gw = performance_data(equal_weight(factor), returns, title='equal weight', groups=groups,
-                                     trade_cost=trade_cost, neutral=neutral)
+    ret, dret, gw = performance_data(equal_weight(factor.index, factor.columns),
+                                     returns,
+                                     title='equal weight',
+                                     groups=groups,
+                                     trade_cost=trade_cost,
+                                     neutral=neutral)
     rets.append(ret)
     drets.append(dret)
     gwgts[ret.name] = gw
 
-    ret, dret, gw = performance_data(equal_weight(factor), returns, title='equal weight 1.5', leverage=1.5,
-                                     groups=groups, trade_cost=trade_cost, neutral=neutral)
-    rets.append(ret)
-    drets.append(dret)
-    gwgts[ret.name] = gw
+    #ret, dret, gw = performance_data(equal_weight(factor.index, factor.columns),
+    #                                 returns,
+    #                                 title='equal weight 1.5',
+    #                                 leverage=1.5,
+    #                                 groups=groups,
+    #                                 trade_cost=trade_cost,
+    #                                 neutral=neutral)
+    #rets.append(ret)
+    #drets.append(dret)
+    #gwgts[ret.name] = gw
 
-    ret, dret, gw = performance_data(factor, returns, groups=groups, trade_cost=trade_cost, neutral=neutral)
+    ret, dret, gw = performance_data(factor,
+                                     returns,
+                                     groups=groups,
+                                     trade_cost=trade_cost,
+                                     neutral=neutral)
     rets.append(ret)
     drets.append(dret)
     gwgts[ret.name] = gw
 
     for roll in rolls:
-        ret, dret, gw = performance_data(factor, returns, roll, groups=groups, trade_cost=trade_cost, neutral=neutral)
+        ret, dret, gw = performance_data(factor,
+                                         returns,
+                                         roll,
+                                         groups=groups,
+                                         trade_cost=trade_cost,
+                                         neutral=neutral)
         rets.append(ret)
         drets.append(dret)
         gwgts[ret.name] = gw
@@ -140,8 +176,8 @@ def performance_data_list(factor, returns, rolls=[], groups=None, trade_cost=Non
     return rets, drets, gwgts
 
 
-def calc_performance(drets):
-    sp = sharpe(drets, returns_ref=drets['equal weight']).sort_values()
+def calc_performance(drets, ref):
+    sp = sharpe(drets, returns_ref=ref).sort_values()
     sp.name = "Sharpe"
 
     vol = drets.std(axis='rows') * np.sqrt(252)
@@ -152,23 +188,40 @@ def calc_performance(drets):
     return res
 
 
-def analyze_factor(factor_name, data, returns, sp500_gics, trade_cost=0):
+def analyze_factor(factor_name,
+                   data,
+                   returns,
+                   sp500_gics,
+                   trade_cost=0,
+                   rolls=[2, 5, 8, 10, 13, 15, 100]):
 
     print(f"ANALYZING: {factor_name}")
     r1 = data[[factor_name]]
     r1 = r1.dropna()
     factor = r1[factor_name].unstack()
-    print(factor)
-    # TODO: force factor df date index to be consecutive, force columns to be all sp500
-    factor = factor.reindex(pd.bdate_range(factor.index.min(), factor.index.max()))
-    print(factor)
-    rets, drets, gwgts = performance_data_list(factor, returns, rolls=[2, 5, 8, 10, 13, 15, 100], trade_cost=trade_cost, groups=sp500_gics)
+
+    factor = factor.reindex(pd.bdate_range(factor.index.min(),
+                                           factor.index.max()))
+    returns.columns.name = 'ticker'
+    factor = factor.reindex(returns.columns, axis=1)
+    #print(factor)
+
+    rets, drets, gwgts = performance_data_list(factor,
+                                               returns,
+                                               rolls=rolls,
+                                               trade_cost=trade_cost,
+                                               groups=sp500_gics)
     rets.plot(figsize=(10, 5), title=f"{factor_name} Without Neutralization")
     print(calc_performance(drets, drets['equal weight']))
-    #print(drets.corr())
+    # print(drets_n.corr())
     gwgts['roll-None'].tail(300).plot.area(figsize=(10, 5), title=f"{factor_name} Without Neutralization")
 
-    rets_n, drets_n, gwgts_n = performance_data_list(factor, returns, rolls=[2, 5, 8, 10, 13, 15, 100], trade_cost=trade_cost, groups=sp500_gics, neutral=True)
+    rets_n, drets_n, gwgts_n = performance_data_list(factor,
+                                                     returns,
+                                                     rolls=rolls,
+                                                     trade_cost=trade_cost,
+                                                     groups=sp500_gics,
+                                                     neutral=True)
     rets_n.plot(figsize=(10, 5), title=f"{factor_name} Neutralized")
     print("sector neutral:")
     print(calc_performance(drets_n, drets_n['equal weight']))
