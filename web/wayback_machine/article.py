@@ -1,8 +1,8 @@
 import requests
 
-from web.html_parser import PRNewswireParser
-from nlp.util.common import clean_sentence, is_english
-from util import read_pickle, nkeys
+from andromeda.web.html_parser import PRNewswireParser
+from andromeda.nlp.util import clean_sentence, is_english
+from andromeda.util import read_pickle, nkeys
 
 
 def get_archive_article(url, timestamp):
@@ -76,8 +76,8 @@ if __name__ == '__main__':
     if platform.system() == "Darwin":
         multiprocessing.set_start_method('spawn')
 
-    from util import chunk_dict, multi_run
-    path = '/Users/shuowang/pycharm/p001/data/process_articles_res'
-    data_file = '/Users/shuowang/pycharm/p001/code/test003_prnewswire_v01/data/prnews_title_dict.pkl'
+    from andromeda.util import chunk_dict, multi_run
+    path = '/data/process_articles_res'
+    data_file = '/code/test003_prnewswire_v01/data/prnews_title_dict.pkl'
     res = chunk_dict(nkeys(read_pickle(data_file), 3))
     multi_run(process_articles, path, res)

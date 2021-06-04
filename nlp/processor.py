@@ -8,7 +8,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 
-from nlp.util.common import to_words
+from andromeda.nlp.util import to_words
+from andromeda.config import MODEL_DIR
 
 
 class Processor:
@@ -34,12 +35,10 @@ class NERStanford(Processor):
     def __init__(self, jar_path=None, model_path=None):
         self._jar_path = jar_path \
             if jar_path is not None \
-            else osp.join(osp.dirname(__file__),
-                          'model', 'stanford-ner.jar')
+            else osp.join(MODEL_DIR, 'stanford-ner.jar')
         self._model_path = model_path \
             if model_path is not None \
-            else osp.join(osp.dirname(__file__),
-                          'model', 'english.all.3class.distsim.crf.ser.gz')
+            else osp.join(MODEL_DIR, 'english.all.3class.distsim.crf.ser.gz')
 
         super().__init__()
 
@@ -71,12 +70,10 @@ class POSStanford(Processor):
     def __init__(self, jar_path=None, model_path=None):
         self._jar_path = jar_path \
             if jar_path is not None \
-            else osp.join(osp.dirname(__file__),
-                          'model', 'stanford-postagger.jar')
+            else osp.join(MODEL_DIR, 'stanford-postagger.jar')
         self._model_path = model_path \
             if model_path is not None \
-            else osp.join(osp.dirname(__file__),
-                          'model', 'english-caseless-left3words-distsim.tagger')
+            else osp.join(MODEL_DIR, 'english-caseless-left3words-distsim.tagger')
 
         super().__init__()
 
@@ -155,8 +152,7 @@ class WordVector(Processor):
     def __init__(self, model_path=None):
         self._model_path = model_path \
             if model_path is not None \
-            else osp.join(osp.dirname(__file__),
-                          'model', 'wv_100000.model')
+            else osp.join(MODEL_DIR, 'wv_100000.model')
 
         super().__init__()
 

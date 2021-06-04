@@ -1,7 +1,7 @@
 import multiprocessing as mp
 import os
 
-from util import write_pickle
+from andromeda.util import write_pickle
 
 
 def _save_data(res, path, idx):

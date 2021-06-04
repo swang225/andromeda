@@ -1,5 +1,5 @@
-from nlp.util.common import *
-from nlp.processor import *
+from andromeda.nlp.util import *
+from andromeda.nlp.processor import *
 
 
 def test_0001():

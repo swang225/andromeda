@@ -1,5 +1,5 @@
-from nlp.processor import SVOStanford, WordVector
-from nlp.util import get_org
+from andromeda.nlp.processor import SVOStanford, WordVector
+from andromeda.nlp.util import get_org
 
 
 def create_svo(data):

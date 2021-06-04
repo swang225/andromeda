@@ -1,11 +1,11 @@
 import gensim
-from nlp.util import to_words, clean_punctuations, clean_digits, to_sentence
+from andromeda.nlp.util import to_words, clean_punctuations, clean_digits, to_sentence
 
 
 def get_org(title, ner=None):
 
     if ner is None:
-        from nlp.processor import NERStanford
+        from andromeda.nlp.processor import NERStanford
         ner = NERStanford()
 
     words = to_words(title.upper())
@@ -17,11 +17,11 @@ def get_org(title, ner=None):
 def clean_words(sentence, lemmatizer=None, stop_words=None):
     lm = lemmatizer
     if lm is None:
-        from nlp.processor import Lemmatizer
+        from andromeda.nlp.processor import Lemmatizer
         lm = Lemmatizer()
     sw = stop_words
     if sw is None:
-        from nlp.processor import StopWords
+        from andromeda.nlp.processor import StopWords
         sw = StopWords()
 
     res = clean_punctuations(sentence)

@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+from andromeda.finance.analytics.portfolio import roll
+
 
 def daily_returns(prices):
     """
@@ -42,15 +44,15 @@ def sharpe(returns, returns_ref=0, period=252, ddof=1):
     return mean_returns.mul(np.sqrt(period)) / volatility
 
 
-def equal_weight(factor):
-    eq_factor = pd.DataFrame(1, index=factor.index, columns=factor.columns)
-    return eq_factor
 
+def factor_strategy(factor,
+                    roll_days=None,
+                    leverage=1,
+                    groups=None,
+                    neutral=False):
 
-def factor_strategy(factor, roll=None, leverage=1, groups=None, neutral=False):
     factor = factor.copy()
-    if roll is not None:
-        factor = factor.rolling(roll, min_periods=1).sum()
+    factor = roll(factor, roll_days)
 
     group_weights = None
     if groups is not None:

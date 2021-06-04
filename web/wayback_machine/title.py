@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 import datetime as dt
 
-from nlp.util.common import clean_digits
+from andromeda.nlp.util import clean_digits
 
 
 def get_raw_list(base, page):

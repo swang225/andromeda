@@ -39,9 +39,9 @@ def create_ticker_map(subjects, tickers):
 
 
 if __name__ == '__main__':
-    df1 = pd.read_csv("code/test001_nlp/sp500gics.csv")
+    df1 = pd.read_csv("code/test001_nlp/sp500gics02.csv")
     tickers = [(' '.join(ls).upper(), ls[0]) for ls in list(df1[['Symbol', 'Security']].values)]
 
-    from util import read_pickle
+    from andromeda.util import read_pickle
     org_map = read_pickle("code/test003_prnewswire_v01/data/org_map_complete.pkl")
     orgs = set(org_map.values())
