@@ -14,8 +14,9 @@ set ANDROMEDA
 to model directory: C:\path\to\model
 
 TODO:
-create df analysis dash report
+create df analysis dash report 
 create tasks and do multi run on them
-setup factor framework
-ticker mapping enhancements
-hyper parametrization
+setup factor framework 2
+ticker mapping enhancements 1
+hyper parametrization 4
+text body analysis 3

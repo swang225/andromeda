@@ -11,7 +11,8 @@ def daily_returns(prices):
     :return: daily returns, indexed by date
     """
 
-    res = (prices/prices.shift(1) - 1.0)[1:]
+    res = (prices / prices.shift(1) - 1.0)
+    res.iloc[0] = 0
 
     return res
 
@@ -38,11 +39,36 @@ def sharpe(returns, returns_ref=0, period=252, ddof=1):
     :return: Sharpe Ratio
     """
 
-    mean_returns = returns.sub(returns_ref, axis='rows').mean(axis='rows')
+    mean_returns = returns.squeeze().sub(returns_ref, axis='rows').mean(axis='rows')
     volatility = returns.std(axis='rows', ddof=ddof)
 
-    return mean_returns.mul(np.sqrt(period)) / volatility
+    return mean_returns * np.sqrt(period) / volatility
 
+
+def max_drawdown(cum_returns):
+
+    max_returns = np.fmax.accumulate(cum_returns)
+    res = cum_returns / max_returns - 1
+
+    res.columns = ['max drawdown']
+
+    return res
+
+
+def brownian_prices(start, end):
+
+    bdates = pd.bdate_range(start, end)
+    size = len(bdates)
+
+    np.random.seed(1)
+    wt = np.random.standard_normal(size)
+
+    mu = 0.0001
+    sigma = 0.01
+    s0 = 10.0
+    st = s0 * np.cumprod(np.exp(mu - (sigma * sigma / 2.0) + sigma * wt))
+
+    return pd.DataFrame(data={'date': bdates, 'price': st}).set_index('date')
 
 
 def factor_strategy(factor,
